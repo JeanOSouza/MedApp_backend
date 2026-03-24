@@ -3,19 +3,25 @@ const Medicacao = require("../models/Medicacao");
 module.exports = {
   async create(req, res) {
     try {
-      const { nome_medicacao, dosagem, descricao, id_usuario, inicio_medicacao } = req.body;
+      const {
+        nome_medicacao,
+        dosagem,
+        descricao,
+        id_usuario,
+        inicio_medicacao,
+      } = req.body;
 
       const medicacao = await Medicacao.create({
         nome_medicacao,
         dosagem,
         descricao,
         id_usuario,
-        inicio_medicacao
+        inicio_medicacao,
       });
-        console.log('Registro Criado', medicacao)
+      console.log("Registro Criado", medicacao);
       res.status(201).json(medicacao);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       res.status(500).json({
         error: error.message,
       });
@@ -64,6 +70,23 @@ module.exports = {
       res.status(500).json({
         error: error.message,
       });
+    }
+  },
+
+  //para acessar os medicamentos de determinado usuario, apenas se estiver logado
+  async listByUser(req, res) {
+    try {
+      const userId = req.userId;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Usuario na autenticado" });
+      }
+      const medicacoes = await Medicacao.findAll({
+        where: { id_usuario: userId },
+      });
+      return res.json(medicacoes);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
   },
 };
